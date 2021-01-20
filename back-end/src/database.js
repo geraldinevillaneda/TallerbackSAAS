@@ -1,10 +1,10 @@
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'geoportal'
+    host: 'bs9cvxn9ebmjktpf3edb-mysql.services.clever-cloud.com',
+    user: 'u6msqrbhy3a34zez',
+    password: 'XNpk2F14OzuQioYg3MJ6',
+    database: 'bs9cvxn9ebmjktpf3edb'
 });
 
 connection.connect((error)=>{
