@@ -8,7 +8,8 @@ const connection = require('../database');
 router.get('/',(req, res)=>{
     connection.query('SELECT * FROM gasolineras', (error, rows, fields)=>{
         if(!error){
-            res.json(rows);
+            console.log(rows);
+            res.json({data:rows});
         }else{
             console.log(error);
         }
