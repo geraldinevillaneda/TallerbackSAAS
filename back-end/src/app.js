@@ -2,9 +2,9 @@ const express = require('express');
 const app =  express();
 const morgan = require('morgan');
 const cors = require('cors');
-
+const PORT = process.env.PORT || 3128;
 //Settings
-app.set('port', process.env.PORT || 3000);
+app.set('port', PORT);
 
 
 //Middlewares
