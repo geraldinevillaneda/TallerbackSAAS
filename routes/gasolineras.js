@@ -1,9 +1,10 @@
-//
-
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const connection = require('../database');
+
 
 router.get('/',(req, res)=>{
     connection.query('SELECT * FROM gasolineras', (error, rows, fields)=>{
@@ -30,14 +31,14 @@ router.get('/:id', async( req, res)=>{
 router.post('/agregar', (req, res) =>{
     const { id, nombre_estacion, direccion_estacion, telefono_estacion,
             latitud_estacion, longitud_estacion } = req.body;
-    const nuevaEstacion = {
+    nuevaEstacion = [
         id,
         nombre_estacion,
         direccion_estacion,
         telefono_estacion,
         latitud_estacion,
         longitud_estacion
-    };
+    ];
     connection.query('insert into gasolineras set ?', [nuevaEstacion]);
     res.json('received');
 });
@@ -66,4 +67,6 @@ router.post('/update/:id', async (req, res)=>{
 });
 
 
-module.exports = router;
+
+
+module.exports = router; 

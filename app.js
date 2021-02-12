@@ -11,7 +11,6 @@ testAPIRouter = require('./routes/testAPI');
 gasolinerasRouter = require('./routes/gasolineras');
 var app = express();
 
-var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
