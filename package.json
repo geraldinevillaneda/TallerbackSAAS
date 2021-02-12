@@ -1,28 +1,19 @@
 {
-  "name": "tallerbacksaas",
-  "version": "1.0.0",
-  "description": "Este es el back del taller",
-  "main": "index.js",
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon back-end/src/app.js --exec node"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/geraldinevillaneda/TallerbackSAAS.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/geraldinevillaneda/TallerbackSAAS/issues"
-  },
-  "homepage": "https://github.com/geraldinevillaneda/TallerbackSAAS#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "morgan": "^1.10.0",
-    "mysql": "^2.18.1",
-    "sequelize": "^6.5.0"
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1",
+    "mysql": "^2.18.1"
   }
 }
