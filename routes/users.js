@@ -46,14 +46,14 @@ router.post('/agregar', (req, res) =>{
     nuevoUsuario.clave_usuario = bcrypt.hashSync(nuevoUsuario.clave_usuario, 10);
     console.log(nuevoUsuario);
     connection.query('insert into usuarios set ?', [nuevoUsuario]);
-    res.json('usuario received');
+    res.json({Status: 'usuario received'});
 });
 
 
 router.get('/delete/:id', async( req, res)=>{
     const { id } = req.params;
     await connection.query('delete from usuarios where id = ?', [id]);
-    res.json('usuario deleted');
+    res.json({Status: 'usuario deleted'});
 
 });
 
@@ -112,10 +112,12 @@ const getbyUser = (usuario) => {
 
 router.post('/login', async(req, res) => {
 
+    console.log(req.body);
     const user = await getbyUser(req.body.nombre_usuario);
     if(user === undefined)
     {
         res.json({
+            Auth: false,
             error: 'Error, User or Password not found'
         });
     }
@@ -126,12 +128,14 @@ router.post('/login', async(req, res) => {
         if(!equals)
         {
             res.json({
+                Auth: false,
                 error: 'Error, User or Password not found'
             });
         }
         else
         {
             res.json({
+                Auth: true,
                 succesfull: crearToken(user),
                 done: 'Login correct'
             })
