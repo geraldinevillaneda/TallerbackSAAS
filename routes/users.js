@@ -13,7 +13,7 @@ const crearToken = (user) => {
     let payload = {
         userId: user.id,
         createdAt: moment().unix(),
-        expiresAt: moment().add(1,'day').unix()
+        expiresAt: moment().add(1,'minute').unix()
     }
     return jwt.sign(payload, texto.secreto)
     //return jwt.encodes(payload, process.env,TOKEN_KEY);
@@ -30,34 +30,75 @@ router.get('/',(req, res)=>{
     });
 });
 
-router.post('/agregar', (req, res) =>{
-    const { id, nombre_usuario, tipo_documento, sexo_usuario, nacionalidad_usuario, telefono_usuario,
-        direccion_usuario, clave_usuario } = req.body;
-    const nuevoUsuario = {
-        id,
-        nombre_usuario,
-        tipo_documento,
-        sexo_usuario,
-        nacionalidad_usuario,
-        telefono_usuario,
-        direccion_usuario,
-        clave_usuario
-    };
-    nuevoUsuario.clave_usuario = bcrypt.hashSync(nuevoUsuario.clave_usuario, 10);
-    console.log(nuevoUsuario);
-    connection.query('insert into usuarios set ?', [nuevoUsuario]);
-    res.json({Status: 'usuario received'});
+router.post('/agregar', async (req, res) =>{
+
+    const user = await getbyId(req.body.id);
+
+    if(user)
+    {
+        res.json({
+            Auth: false,
+            done: 'El usuario con estas credenciales ya existe'
+        })
+    }
+    else
+    {
+        const { id, nombre_usuario, tipo_documento, sexo_usuario, nacionalidad_usuario, telefono_usuario,
+            direccion_usuario, clave_usuario } = req.body;
+        const nuevoUsuario = {
+            id,
+            nombre_usuario,
+            tipo_documento,
+            sexo_usuario,
+            nacionalidad_usuario,
+            telefono_usuario,
+            direccion_usuario,
+            clave_usuario
+        };
+        nuevoUsuario.clave_usuario = bcrypt.hashSync(nuevoUsuario.clave_usuario, 10);
+        console.log(nuevoUsuario);
+        connection.query('insert into usuarios set ?', [nuevoUsuario]);
+        res.json({
+            Auth: true,
+            succesfull: crearToken(nuevoUsuario),
+            nombre_usuario: nuevoUsuario.nombre_usuario,
+            id: nuevoUsuario.id,
+            done: 'El usuarios fue agregado correctamente'
+        });
+    }
 });
 
 
-router.get('/delete/:id', async( req, res)=>{
+router.get('/delete/:id', verify, async( req, res)=>{
     const { id } = req.params;
-    await connection.query('delete from usuarios where id = ?', [id]);
-    res.json({Status: 'usuario deleted'});
-
+    const respuesta = new Promise((resolve, reject) => {
+        connection.query('delete from usuarios where id = ?', 
+        [id],
+        (err, rows) => {
+            if(err) reject(err)
+            resolve(rows[0])
+        });
+    });
+    
+    if(!respuesta)
+    {
+        return res.json({
+            Auth: false,
+            token: true,
+            done: 'No se pudo Eliminar el Usuario'
+        });
+    }
+    else
+    {
+        return res.json({
+            Auth: true,
+            token: true,
+            done: 'El usuario se elimino correctamente'
+        })
+    }
 });
 
-router.post('/update/:id', (req, res)=>{
+router.post('/update/:id', verify, async(req, res)=>{
     const { id } = req.params;
     const { nombre_usuario, tipo_documento, sexo_usuario, nacionalidad_usuario, telefono_usuario,
             direccion_usuario, clave_usuario } = req.body;
@@ -71,9 +112,32 @@ router.post('/update/:id', (req, res)=>{
         clave_usuario
     };
 
-    connection.query('update usuarios set ? where id = ?', [actualizarE, id]);
-    res.json({Status: 'Estacion updated'});
+    actualizarE.clave_usuario = bcrypt.hashSync(actualizarE.clave_usuario, 10);
+    const respuesta = new Promise((resolve, reject) => {
+        connection.query('update usuarios set ? where id = ?', 
+        [actualizarE, id],
+        (err, rows) => {
+            if(err) reject(err)
+            resolve(rows[0])
+        });
+    });
 
+    if(!respuesta)
+    {
+        return res.json({
+            Auth: false,
+            token: true,
+            done: 'No se pudo actualizar los datos'
+        });
+    }
+    else
+    {
+        return res.json({
+            Auth: true,
+            token: true,
+            done: 'Los datos se actualizaron correctamente'
+        })
+    }
 });
 
 const getbyId = (id) => {
@@ -87,14 +151,23 @@ const getbyId = (id) => {
     });
 };
 
-router.get('/me', verify, async (req, res, next) => {
-    const user  = await getbyId(req.userId, {clave_usuario: 0});
+router.get('/:id', verify, async (req, res, next) => {
+    const {id} = req.params;
+    const user  = await getbyId(id, {clave_usuario: 0});
     
     if(!user){
-        return res.status(404).send("Usuario no Encontrado");
+        return res.json({
+            Auth: false,
+            token: true,
+            done: 'El usuario no se encontro'
+        });
     }
 
-    res.json(user);   
+    res.json({
+        Auth: true,
+        datos: user,
+        done: "Usuario Encontrado"
+    });  
 
 })
 
@@ -137,6 +210,8 @@ router.post('/login', async(req, res) => {
             res.json({
                 Auth: true,
                 succesfull: crearToken(user),
+                nombre_usuario: user.nombre_usuario,
+                id: user.id,
                 done: 'Login correct'
             })
         }

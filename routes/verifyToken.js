@@ -8,7 +8,8 @@ function verifyToken(req, res, next)
     if(!token){
         return res.status(401).json({
             auth: false,
-            mensaje: 'No esta autorizado'
+            token: false,
+            done: 'No esta autorizado'
         });
     }
 
