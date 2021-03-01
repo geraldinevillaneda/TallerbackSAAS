@@ -5,15 +5,35 @@ const jwt = require('jsonwebtoken');
 
 const connection = require('../database');
 
+const buscrarGasolinera  = () => {
 
-router.get('/',(req, res)=>{
-    connection.query('SELECT * FROM gasolineras', (error, rows, fields)=>{
-        if(!error){
-            res.json(rows);
-        }else{
-            console.log(error);
-        }
+    return new Promise((resolve, reject) =>{
+        connection.query('SELECT * FROM gasolineras',(err, rows) => {
+            if(err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
+
+router.get('/', async (req, res)=>{
+
+    const datos = await buscrarGasolinera()
+
+    if(!datos)
+    {
+        return res.json({
+            Auth: false,
+            done: "no hay ninguna gasolinera registrada",
+            data: {}
+        })
+    }
+    
+    res.json({
+        Auth: true,
+        data: datos
     })
+    
 });
 
 
