@@ -20,7 +20,7 @@ const crearToken = (user) => {
 }
 
 
-router.get('/',(req, res)=>{
+router.get('/', verify ,(req, res)=>{
     connection.query('SELECT * FROM usuarios', (error, rows, fields)=>{
         if(!error){
             res.json(rows);
@@ -101,18 +101,16 @@ router.get('/delete/:id', verify, async( req, res)=>{
 router.post('/update/:id', verify, async(req, res)=>{
     const { id } = req.params;
     const { nombre_usuario, tipo_documento, sexo_usuario, nacionalidad_usuario, telefono_usuario,
-            direccion_usuario, clave_usuario } = req.body;
+            direccion_usuario} = req.body;
     const actualizarE = {
         nombre_usuario,
         tipo_documento,
         sexo_usuario,
         nacionalidad_usuario,
         telefono_usuario,
-        direccion_usuario,
-        clave_usuario
+        direccion_usuario
     };
 
-    actualizarE.clave_usuario = bcrypt.hashSync(actualizarE.clave_usuario, 10);
     const respuesta = new Promise((resolve, reject) => {
         connection.query('update usuarios set ? where id = ?', 
         [actualizarE, id],
@@ -191,7 +189,7 @@ router.post('/login', async(req, res) => {
     {
         res.json({
             Auth: false,
-            error: 'Error, User or Password not found'
+            error: 'Error, User or Password empty'
         });
     }
     else
